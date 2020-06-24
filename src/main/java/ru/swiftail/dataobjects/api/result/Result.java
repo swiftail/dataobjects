@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -141,6 +142,16 @@ public abstract class Result<R, E> implements Iterable<R> {
     @SuppressWarnings("unchecked")
     public <R2> Result<R2, E> then(@NotNull Supplier<R2> function) {
         return isError() ? (Result<R2, E>) this : ok(function.get());
+    }
+
+    public void ifError(@NotNull Consumer<E> function) {
+        if (isError())
+            function.accept(unsafeGetError());
+    }
+
+    public void ifOk(@NotNull Consumer<R> function) {
+        if (isOk())
+            function.accept(unsafeGet());
     }
 
     /**
