@@ -144,14 +144,64 @@ public abstract class Result<R, E> implements Iterable<R> {
         return isError() ? (Result<R2, E>) this : ok(function.get());
     }
 
-    public void ifError(@NotNull Consumer<E> function) {
+    /**
+     * Applies function to error if
+     * this result is error-result
+     *
+     * @param function The function to apply
+     * @return this
+     */
+    @NotNull
+    public Result<R, E> ifError(@NotNull Consumer<E> function) {
         if (isError())
             function.accept(unsafeGetError());
+
+        return this;
     }
 
-    public void ifOk(@NotNull Consumer<R> function) {
+    /**
+     * Applies function to value if
+     * this result is ok-result
+     *
+     * @param function The function to apply
+     * @return this
+     */
+    @NotNull
+    public Result<R, E> ifOk(@NotNull Consumer<R> function) {
         if (isOk())
             function.accept(unsafeGet());
+
+        return this;
+    }
+
+    /**
+     * Runs okConsumer with value if result is ok-result
+     * and errorConsumer with error if result is error-result
+     *
+     * @param okConsumer The function to run if result is ok
+     * @param errorConsumer The function to run if result is error
+     */
+    @NotNull
+    public void match(
+            Consumer<R> okConsumer,
+            Consumer<E> errorConsumer
+    ) {
+        ifOk(okConsumer);
+        ifError(errorConsumer);
+    }
+
+    /**
+     * Both-way map
+     *
+     * @param okMapper The ok-way mapper
+     * @param errorMapper The error-way mapper
+     * @return Mapped result
+     */
+    public <R2, E2> Result<R2, E2> mapBoth(
+            Function<R, R2> okMapper,
+            Function<E, E2> errorMapper
+    ) {
+        return map(okMapper).mapError(errorMapper);
     }
 
     /**
