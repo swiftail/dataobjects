@@ -1,4 +1,4 @@
-package ru.swiftail.dataobjects.impl.io.file;
+package ru.swiftail.dataobjects.storage;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -24,11 +24,12 @@ public class FileStorage implements Storage {
     @Override
     public Result<Void, DataObjectsException> write(@NotNull byte[] data) {
         try {
+            Files.createDirectories(path.getParent());
             Files.write(path, data);
             return Result.okVoid();
         } catch (Throwable throwable) {
             return Result.error(new TargetIOException(
-                    String.format("Failed to write to file(%s)", path),
+                    String.format("Failed to write to file(%s)", path.toAbsolutePath()),
                     throwable
             ));
         }
@@ -52,7 +53,7 @@ public class FileStorage implements Storage {
             return Result.ok(Files.readAllBytes(path));
         } catch (Throwable throwable) {
             return Result.error(new SourceIOException(
-                    String.format("Failed to read from file(%s)", path),
+                    String.format("Failed to read from file(%s)", path.toAbsolutePath()),
                     throwable
             ));
         }

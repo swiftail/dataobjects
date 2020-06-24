@@ -9,12 +9,12 @@ import java.io.Serializable;
 
 public interface DataObject<T extends Serializable> {
 
-    public @NotNull
+    @NotNull
     Result<T, DataObjectsException> load();
 
-    public @NotNull Result<Void, DataObjectsException> save(@NotNull T data);
+    @NotNull Result<Void, DataObjectsException> save(@NotNull T data);
 
-    public static <T extends Serializable> DataObjectBuilder<T> builder(Class<T> type) {
+    static <T extends Serializable> DataObjectBuilder<T> builder(Class<T> type) {
         return new DataObjectBuilder<>(type);
     }
 }
