@@ -17,19 +17,31 @@ public class FileStorage implements Storage {
     private final Path path;
 
     public FileStorage(Path path) {
-        this.path = path;
+        this.path = path.toAbsolutePath();
     }
 
     @NotNull
     @Override
     public Result<Void, DataObjectsException> write(@NotNull byte[] data) {
+
+        Path directory = path.getParent();
+
         try {
-            Files.createDirectories(path.getParent());
+            if(Files.notExists(directory)) {
+                Files.createDirectories(directory);
+            }
+        } catch (Throwable throwable) {
+            return Result.error(new TargetIOException(
+                    String.format("Failed to create parent directory(%s)", path)
+            ));
+        }
+
+        try {
             Files.write(path, data);
             return Result.okVoid();
         } catch (Throwable throwable) {
             return Result.error(new TargetIOException(
-                    String.format("Failed to write to file(%s)", path.toAbsolutePath()),
+                    String.format("Failed to write to file(%s)", path),
                     throwable
             ));
         }
@@ -53,7 +65,7 @@ public class FileStorage implements Storage {
             return Result.ok(Files.readAllBytes(path));
         } catch (Throwable throwable) {
             return Result.error(new SourceIOException(
-                    String.format("Failed to read from file(%s)", path.toAbsolutePath()),
+                    String.format("Failed to read from file(%s)", path),
                     throwable
             ));
         }
