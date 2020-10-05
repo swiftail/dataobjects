@@ -122,7 +122,7 @@ public abstract class Result<R, E> implements Iterable<R> {
         return isError() ? lazyFallback.get() : unsafeGet();
     }
     
-        /**
+     /**
      * Accept result to consumer if result is ok
      *
      * @param consumer consumer
@@ -135,7 +135,7 @@ public abstract class Result<R, E> implements Iterable<R> {
     }
 
     /**
-     * Accept result to consumer if result is ok
+     * Accept result to consumer if result is error
      *
      * @param consumer consumer
      */
