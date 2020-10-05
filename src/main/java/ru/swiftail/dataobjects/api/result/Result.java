@@ -26,7 +26,15 @@ public abstract class Result<R, E> implements Iterable<R> {
                 error(lazyError.get()) :
                 ok(value);
     }
-
+    
+    public static <R> Result<R, Exception> recover(ThrowingSupplier<R> supplier) {
+        try {
+            return Result.ok(supplier.get());
+        } catch (Exception e) {
+            return Result.error(e);
+        }
+    }
+    
     public static <E> Result<Void, E> okVoid() {
         return ResultOkVoid.instance();
     }
@@ -112,6 +120,30 @@ public abstract class Result<R, E> implements Iterable<R> {
     @Nullable
     public R orElseGet(@NotNull Supplier<R> lazyFallback) {
         return isError() ? lazyFallback.get() : unsafeGet();
+    }
+    
+     /**
+     * Accept result to consumer if result is ok
+     *
+     * @param consumer consumer
+     */
+    public Result<R, E> ifOk(Consumer<R> consumer) {
+        if (isOk())
+            consumer.accept(unsafeGet());
+
+        return this;
+    }
+
+    /**
+     * Accept result to consumer if result is error
+     *
+     * @param consumer consumer
+     */
+    public Result<R, E> ifError(Consumer<E> consumer) {
+        if (isError())
+            consumer.accept(unsafeGetError());
+
+        return this;
     }
 
     public R require() throws IllegalStateException {
